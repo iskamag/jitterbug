@@ -49,7 +49,7 @@ Nothing here persists: the MAC switch, the channel, the daemon and the
 policies' *reachability* are per boot.
 
 ```
-channel/rootshell.sh      # 1. MAC switch (~80 s, race lottery) + channel
+channel/rootshell.sh      # 1. MAC switch + channel
 su/install.sh             # 2. build, push, start sud, verify, link into Termux
 ```
 
@@ -59,11 +59,11 @@ uid 2000: `uid=0(root)` with `CapEff 0000007fffffffff`.
 
 ## The permission model
 
-Per uid, in `SU_POLICIES`: `deny` / `allow` / `ask`, with an optional expiry
+Per uid, in `$SU_DIR/su.policies`: `deny` / `allow` / `ask`, with an optional expiry
 (Magisk's numbering, `deny=0 allow=1 ask=2`).  A uid with no policy is `ask`:
 the daemon queues the request, starts the manager app's prompt, and waits
 (120 s) for a decision; the decision is written back as a policy.  Root never
-asks.  All decisions are logged to `SU_LOG` with the deciding uid.
+asks.  All decisions are logged to `$SU_DIR/sud.log` with the deciding uid.
 
 ```
 /data/local/tmp/su.policies   # "uid policy until" -- human editable, 0660 root:shell
@@ -84,8 +84,8 @@ edit the policy file directly.
 
 ## The manager app
 
-`com.matepad.sumgr` (`../manager/`, built with `manager/build.sh` against an
-Android SDK): pending requests on top, then every installed app with
+`com.matepad.sumgr` (`../manager/`, built with `manager/build.sh`): pending
+requests on top, then every installed app with
 its current policy; tapping a policy button cycles allow → ask → deny.  The
 prompt (`RequestActivity`, started by the daemon with `am start`) offers
 Allow / Allow for 10 minutes / Deny.

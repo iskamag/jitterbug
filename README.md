@@ -1,95 +1,86 @@
 # mrx-al09-root
 
-Rooting a **Huawei MatePad Pro (MRX-AL09, Kirin 990, EMUI 11.0.0.205,
-Android 10, kernel 4.14.116, Mali r18p0)** from an `adb` shell, and the tooling
-that came out of it. It started as a way to get game saves off a
-locked-bootloader tablet; it ended with a real `su`.
+Root and debloat tooling for the Huawei MatePad Pro MRX-AL09 (Kirin 990,
+EMUI 11.0.0.205, Android 10, kernel 4.14.116, Mali bifrost r18p0).
 
-Everything here is device-specific and per-boot: the SELinux switch and the
-`su` daemon live in kernel/device state that a reboot clears, so the bring-up
-is re-run each boot. The exploit offsets are the ones measured on this
-firmware.
+The device has a locked bootloader and no root. Root is obtained from an `adb`
+shell (uid 2000, `u:r:shell:s0`) using two known CVEs; a `su` is then kept
+alive for the rest of the boot. The chain is re-run after every reboot;
+nothing here persists.
 
-> **Warning.** These are working privilege-escalation exploits against a
-> specific device. Run them only on hardware you own.
+These are working exploits. Run them on hardware you own.
 
-## The layers
+## Tree
 
-| Dir | What it is |
+| Path | |
 |---|---|
-| `su/` | A permission-based `su`: a daemon (`sud`) that holds the privilege, a client you run, a manager CLI, and an Android prompt app. |
-| `manager/` | The prompt app (`com.matepad.sumgr`): pending requests, per-app policy, Allow / 10 minutes / Deny. |
-| `channel/` | The per-boot bring-up: SELinux permissive switch + a uid-0 command channel (a `libbase.so` page-cache hook). |
-| `exploit/` | **CVE-2022-38181** (Mali r18p0 JIT UAF) — the kernel physical read/write. Reliable and repeatable on this firmware. |
-| `debloat/` | First use of the root: removing Huawei/HMS telemetry and having the removal stick. |
-| `tools/` | Host-side harnesses: a device lock (`devlock.sh`) and the PoC runner (`pocrun.sh`). |
+| `su/` | Permission-based `su`: daemon, client, manager CLI. |
+| `manager/` | Android app that answers permission prompts. |
+| `channel/` | Bring-up: SELinux switch plus the uid-0 command channel. |
+| `exploit/` | CVE-2022-38181: Mali r18p0 JIT UAF, kernel physical read/write. |
+| `debloat/` | Huawei/HMS package removal and destination blocking. |
+| `tools/` | Host harnesses: `devlock.sh`, `pocrun.sh`. |
 
-## How it works
+## The chain
 
-Four primitives, brought up in this order each boot; each is documented where
-it lives.
+1. `exploit/mali_boot.c` races a Mali r18p0 JIT UAF and reclaims the freed
+   pages as page tables. That gives content-verified physical read/write.
+   Everything after this uses it.
 
-1. **A kernel physical R/W window** — **CVE-2022-38181**: a Mali r18p0 JIT UAF
-   reclaimed into page tables, giving content-verified physical read/write.
-   → `exploit/`, `exploit/MALI-BOOT-REWRITE.md`.
-2. **SELinux permissive** — a data-only write to the policy DB's
-   `permissive_map`, plus AVC eviction (a cache *hit* copies the old decision).
-   Kernel memory only, no policy reload. This is the `switch` mode of
-   `mali_boot`; the channel needs it to have full access. → `exploit/`.
-3. **A uid-0 channel** — **CVE-2022-22706**: a cold `GetBoolProperty` call in
-   `/system/lib64/libbase.so` is redirected into a payload that spawns a shell
-   in `u:r:installd:s0`. It is the only process on the device with a full
-   capability set (`CapEff 0000007fffffffff`), which is why the `su` daemon has
-   to be started from it. → `channel/`, `channel/REPORT-installd-channel.md`.
-4. **`su`** — everything after that is ordinary Unix: a socket, `SO_PEERCRED`,
-   per-uid policies, and a pts pump so the caller keeps job control.
+2. The same primitive switches SELinux to permissive by clearing
+   `policydb.permissive_map` and the AVC cache. This is `mali_boot switch`.
+   It writes kernel memory only; there is no policy reload.
 
-### Why `su` is a daemon, not a setuid binary
+3. `channel/` installs CVE-2022-22706: a cold `GetBoolProperty` call in
+   `/system/lib64/libbase.so` is redirected to a payload that runs a command
+   loop as uid 0 in `u:r:installd:s0`. That is the only process on the device
+   with a full capability set.
 
-A setuid binary cannot be a real `su` here. Two measured, kernel-level facts
-(SELinux is not the obstacle — the switch does not touch either):
+4. `su/` is a normal su from there: a unix socket, `SO_PEERCRED` for identity,
+   per-uid allow/deny/ask policies, and a pty pump so the calling shell keeps
+   job control.
 
-* `securebits = 0x2f` with `SECURE_NOROOT` **set and locked**: a setuid-root
-  binary comes out `Uid: 2000 0 0 0` with `CapPrm = CapEff = 0`.
-* `CapBnd = 0xc0` (inherited from this firmware's non-root `adbd`), and the
-  bounding set is a hard ceiling.
+### Why su is a daemon
 
-So the privilege lives in the channel, and `sud` — started by it — forks each
-root shell with the caller's ttys. Full detail in `su/README.md`.
+A setuid-root binary gets euid 0 and no capabilities on this device.
+`securebits` is `0x2f` with `SECURE_NOROOT` set and locked, so
+`cap_bprm_set_creds()` never grants capabilities to a setuid exec, and
+`CapBnd` is `0xc0` from the firmware's non-root `adbd`. Both are measured on
+the device. The privilege therefore has to stay in the process that already
+has it, so `sud` is started from the channel and forks each shell.
+
+See `su/README.md` for the protocol and the permission model.
 
 ## Build
 
+A cross toolchain is required for the device binaries, and an Android SDK for
+the manager app.
+
 ```
-make su        # sud, su, sumgr   (needs NDK=<path> or MUSL=<path>)
-make channel   # pcwrite2         (needs NDK=<path>)
-make exploit   # mali_boot        (needs NDK=<path>)
-make test      # host tests for the su subsystem
+NDK=<android-ndk> MUSL=<aarch64-musl> make su
+NDK=<android-ndk> make channel
+NDK=<android-ndk> make exploit
+make test
 ```
 
-Binaries are never committed. `su/build.sh` and `manager/build.sh` take the
-toolchain from the environment (`CC`, `SDK_DIR`).
+`make test` builds and runs the host tests for the policy parser and the wire
+framing. Binaries are not committed.
 
 ## Run
 
 ```
-export SER=<your-device-serial>          # adb devices
-NDK=<android-ndk> channel/stage.sh       # once: push pcwrite2 + r.sh to the device
-channel/rootshell.sh                     # 1. permissive + uid-0 channel
-su/install.sh                            # 2. build, push, start sud, verify
-adb shell /data/local/tmp/su -c 'id'     #    uid=0(root), CapEff full
+export SER=<serial>                  # adb devices
+NDK=<android-ndk> channel/stage.sh   # once: push pcwrite2 and r.sh
+channel/rootshell.sh                 # permissive, then the channel
+su/install.sh                        # build, push, start sud, verify
 ```
 
-`rootshell.sh` runs `mali_boot switch` (through `tools/pocrun.sh`) first, so a
-lost race there is possible; it warns and continues if the switch did not
-report `MAC GRANTED`. `su/README.md`, `exploit/MALI-BOOT-REWRITE.md` and
-`channel/REPORT-installd-channel.md` carry the detail.
+`rootshell.sh` runs `mali_boot switch` through `tools/pocrun.sh`. If the run
+does not report `MAC GRANTED` it warns and continues.
 
-## Layout note
-
-The `su` stack talks to the daemon through `/data/local/tmp/su.sock` by
-default; `SU_DIR`, `SU_MANAGER_PKG` and `SU_SHELL_PKG` are environment
-overrides (`su/config.h`), so the same binaries work for another install.
+Paths and packages are runtime configuration, see `su/config.h`. `SU_DIR`
+defaults to `/data/local/tmp`, `SU_MANAGER_PKG` to `com.matepad.sumgr`.
 
 ## License
 
-MIT — see `LICENSE`. The CVE identifiers belong to their respective advisories.
+MIT, see `LICENSE`.
