@@ -2,8 +2,8 @@
 
 A working `su`: a daemon that holds the privilege, a client you run, a manager
 app that prompts, and a CLI to manage the policies.  No setuid bit, no
-exploitation at use time — the per-boot bring-up is `tools/rootshell.sh` (MAC
-switch + channel) and then `tools/su/install.sh`.
+exploitation at use time — the per-boot bring-up is `channel/rootshell.sh` (MAC
+switch + channel) and then `su/install.sh`.
 
 ```
 su                 # interactive root shell (bash if the device has one)
@@ -28,10 +28,10 @@ level facts (not SELinux — the permissive switch does not touch either):
    capabilities with `cap_bset` too.
 
 The only process that has a full capability set (`CapEff 0000007fffffffff`) is
-the **installd channel** built by `tools/rootshell.sh`.  So that is where the
+the **installd channel** built by `channel/rootshell.sh`.  So that is where the
 privilege lives: `sud` is started by the channel, inherits the full set, and
 forks each root shell from there.  (`su` still has a local fallback when it is
-invoked with a setuid bit — `SETUID=1 tools/su/install.sh` — but it can only be
+invoked with a setuid bit — `SETUID=1 su/install.sh` — but it can only be
 a crippled root, and it prints exactly why.)
 
 This is also why Magisk cannot simply be dropped in: its install path *is*
@@ -49,8 +49,8 @@ Nothing here persists: the MAC switch, the channel, the daemon and the
 policies' *reachability* are per boot.
 
 ```
-tools/rootshell.sh        # 1. MAC switch (~80 s, race lottery) + channel
-tools/su/install.sh       # 2. build, push, start sud, verify, link into Termux
+channel/rootshell.sh      # 1. MAC switch (~80 s, race lottery) + channel
+su/install.sh             # 2. build, push, start sud, verify, link into Termux
 ```
 
 `install.sh` also kills duplicate channels and stale daemons (a duplicate
@@ -84,8 +84,8 @@ edit the policy file directly.
 
 ## The manager app
 
-`com.matepad.sumgr` (`tools/su/manager/`, built with the SDK-less chain in
-`tools/sdk/README.md`): pending requests on top, then every installed app with
+`com.matepad.sumgr` (`../manager/`, built with `manager/build.sh` against an
+Android SDK): pending requests on top, then every installed app with
 its current policy; tapping a policy button cycles allow → ask → deny.  The
 prompt (`RequestActivity`, started by the daemon with `am start`) offers
 Allow / Allow for 10 minutes / Deny.
@@ -108,7 +108,12 @@ Allow / Allow for 10 minutes / Deny.
 ## Building
 
 ```
-tools/su/build.sh            # sud, su, sumgr (musl static, aarch64)
-tools/su/manager/build.sh    # the app (aapt2/d8/apksigner, no gradle)
-tools/su/install.sh          # deploy + start + verify
+./build.sh                   # sud, su, sumgr (musl static, aarch64)
+../manager/build.sh           # the app (aapt2/d8/apksigner, no gradle)
+./install.sh                  # deploy + start + verify
+./build.sh test               # host tests: policy parser + wire framing
 ```
+
+Paths and packages are runtime configuration (`config.h`): `SU_DIR`,
+`SU_MANAGER_PKG` and `SU_SHELL_PKG` override the compiled defaults, so the
+same binaries work for another install.

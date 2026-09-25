@@ -14,11 +14,12 @@ if [ "${1:-}" = test ]; then
     exec "$DIR/tests/run.sh"
 fi
 
-common="client.c config.c framing.c policy.c"
+common=(client.c config.c framing.c policy.c)
+srcs=()
+for c in "${common[@]}"; do srcs+=("$DIR/$c"); done
 
 for p in sud su sumgr; do
-    # shellcheck disable=SC2086
-    "$CC" $CFLAGS -o "$DIR/$p" "$DIR/$p.c" $DIR/$common
+    "$CC" $CFLAGS -o "$DIR/$p" "$DIR/$p.c" "${srcs[@]}"
     echo "[+] $DIR/$p"
 done
 ls -l "$DIR/sud" "$DIR/su" "$DIR/sumgr" | awk '{print $5, $9}'
