@@ -92,7 +92,7 @@ done
 ## 3. Exact host + device command sequence (reproduction)
 
 ```bash
-D=U4G6R20811000860
+D=$SER
 LIB=/system/lib64/libbase.so
 
 # 0. trigger target script exists (already on device): /data/local/tmp/r.sh (loop above)
