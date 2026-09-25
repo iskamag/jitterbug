@@ -1,0 +1,13 @@
+# build outputs -- never commit binaries or signing material
+su/su
+su/sud
+su/sumgr
+su/*.o
+manager/out/
+manager/build/
+manager/*.keystore
+exploit/mali_boot
+exploit/*.o
+channel/pcwrite2
+debloat/logs/
+debloat/state/

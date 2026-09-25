@@ -1,0 +1,73 @@
+# APK evidence for the 2026-09-17/18 debloat findings.
+# Pulled from the device; stock system APKs, re-pullable, so only this text is kept.
+
+## HwDockBar.apk  (4672297 bytes)
+package: name='com.huawei.hwdockbar' versionCode='110016301' versionName='11.0.16.301' 
+application-label:'Multi-Window'
+   permissions: 25 total, first 8:
+     'android.permission.INTERACT_ACROSS_USERS'
+     'android.permission.VIBRATE'
+     'com.huawei.permission.PERMISSION_UPDATE_FLOATWINDOW'
+     'com.huawei.permission.ACTIVITY_NOTIFIER_PERMISSION'
+     'com.huawei.permission.SET_WINDOW_MODE'
+     'android.permission.MANAGE_ACTIVITY_STACKS'
+     'android.permission.REAL_GET_TASKS'
+     'android.permission.READ_FRAME_BUFFER'
+
+## HwPCSystemUI.apk  (4936432 bytes)
+package: name='com.huawei.desktop.systemui' versionCode='1110' versionName='11.0.0.426' 
+application-label:'HwSystemUI'
+   permissions: 70 total, first 8:
+     'android.permission.WRITE_MEDIA_STORAGE'
+     'android.permission.WAKE_LOCK'
+     'android.permission.INJECT_EVENTS'
+     'android.permission.DUMP'
+     'android.permission.WRITE_SETTINGS'
+     'android.permission.STATUS_BAR_SERVICE'
+     'android.permission.STATUS_BAR'
+     'android.permission.EXPAND_STATUS_BAR'
+
+## HwPCExplorer.apk  (8805997 bytes)
+package: name='com.huawei.desktop.explorer' versionCode='13100' versionName='11.0.0.430' 
+application-label:'My files'
+   permissions: 22 total, first 8:
+     'android.permission.ACCESS_WIFI_STATE'
+     'android.permission.CHANGE_WIFI_STATE'
+     'com.huawei.desktop.explorer.permission.SELF'
+     'com.huawei.desktop.systemui.permission.SELF'
+     'com.huawei.permission.PC_MANAGER_API'
+     'android.permission.READ_EXTERNAL_STORAGE'
+     'android.permission.WRITE_EXTERNAL_STORAGE'
+     'android.permission.WRITE_MEDIA_STORAGE'
+
+## HwNearby.apk  (33380 bytes)
+package: name='com.huawei.nearby' versionCode='110000211' versionName='11.0.0.211' 
+application-label:'HwNearby'
+   permissions: 45 total, first 8:
+     'android.permission.BLUETOOTH'
+     'android.permission.BLUETOOTH_ADMIN'
+     'com.android.permission.WHITELIST_BLUETOOTH_DEVICE'
+     'android.permission.WAKE_LOCK'
+     'android.permission.LOCAL_MAC_ADDRESS'
+     'android.permission.READ_EXTERNAL_STORAGE'
+     'android.permission.WRITE_EXTERNAL_STORAGE'
+     'android.permission.INTERNET'
+
+## zenkit.apk  (5703 bytes)
+package: name='com.yandex.zenkitpartnerconfig' versionCode='51' versionName='1.0' 
+application-label:'ZenkitPartnerConfig'
+   permissions: 0 total, first 8:
+
+## HwParentControl.apk  (7967168 bytes)
+package: name='com.huawei.parentcontrol' versionCode='1100000411' versionName='11.0.0.411' 
+application-label:'Digital Balance'
+   permissions: 71 total, first 8:
+     'com.huawei.systemmanager.permission.ACCESS_INTERFACE'
+     'com.huawei.permission.MANAGE_FOLD_SCREEN'
+     'com.huawei.browser.HistoryProvider.READ'
+     'com.huawei.permission.VASSIST_DESKTOP'
+     'huawei.android.permission.SET_CANNOT_UNINSTALLED_PERMISSION'
+     'android.permission.RESET_FINGERPRINT_LOCKOUT'
+     'com.huawei.android.permission.PROTECTAREA'
+     'android.permission.INTERNAL_SYSTEM_WINDOW'
+

