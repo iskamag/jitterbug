@@ -3,7 +3,7 @@
  * on this device (SECURE_NOROOT + a 0xc0 bounding set: a setuid binary gets
  * euid 0 and nothing else).
  *
- *   sud            daemonize; policy in SU_POLICIES, log in SU_LOG
+ *   sud            daemonize; policy in $SU_DIR/su.policies, log in $SU_DIR/sud.log
  *   sud -f         stay in the foreground (debugging)
  *   sud -n         first run: do not pre-allow the shell uid
  *
@@ -35,16 +35,14 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "config.h"
+#include "framing.h"
+#include "policy.h"
 #include "proto.h"
 
 #define PROMPT_TIMEOUT_MS 120000        /* how long a request waits for the user */
 #define LOG_TAIL          50
-
-struct pol {
-    uid_t   uid;
-    int     policy;
-    int64_t until;
-};
+#define MAX_POLICIES      128
 
 static int   logfd = -1;
 static bool  foreground;
@@ -109,40 +107,15 @@ static void set_owner(const char *path, uid_t uid, gid_t gid, mode_t mode)
 
 /* --- policies ------------------------------------------------------------ */
 
-static const char *policy_name(int p)
+static int load_policies(struct su_pol *v, int max)
 {
-    return p == SU_POLICY_ALLOW ? "allow" : p == SU_POLICY_DENY ? "deny" : "ask";
-}
-
-static int parse_policy(const char *s)
-{
-    if (!strcmp(s, "allow") || !strcmp(s, "1")) return SU_POLICY_ALLOW;
-    if (!strcmp(s, "deny")  || !strcmp(s, "0")) return SU_POLICY_DENY;
-    if (!strcmp(s, "ask")   || !strcmp(s, "2")) return SU_POLICY_ASK;
-    return -1;
-}
-
-static int load_policies(struct pol *v, int max)
-{
-    FILE *f = fopen(SU_POLICIES, "re");
+    FILE *f = fopen(su_cfg.policies, "re");
     char line[512];
     int n = 0;
 
     if (!f) return 0;
     while (n < max && fgets(line, sizeof line, f)) {
-        char *p = line, name[16];
-        long long uid, until = 0;
-        int pol;
-
-        while (*p == ' ' || *p == '\t') p++;
-        if (*p == '#' || *p == '\n' || !*p) continue;
-        if (sscanf(p, "%lld %15s %lld", &uid, name, &until) < 2) continue;
-        pol = parse_policy(name);
-        if (pol < 0) continue;
-        v[n].uid = (uid_t)uid;
-        v[n].policy = pol;
-        v[n].until = until;
-        n++;
+        if (su_parse_policy_line(line, &v[n]) == 0) n++;
     }
     fclose(f);
     return n;
@@ -151,8 +124,8 @@ static int load_policies(struct pol *v, int max)
 /* last matching line wins; an expired entry means "ask again" */
 static int policy_for(uid_t uid, int64_t *until)
 {
-    struct pol v[128];
-    int n = load_policies(v, 128);
+    struct su_pol v[MAX_POLICIES];
+    int n = load_policies(v, MAX_POLICIES);
     int found = SU_POLICY_ASK;
     int64_t fu = 0;
 
@@ -170,39 +143,44 @@ static int policy_for(uid_t uid, int64_t *until)
 
 static int policy_set(uid_t uid, int policy, int64_t until)
 {
-    FILE *in = fopen(SU_POLICIES, "re");
-    FILE *out = fopen(SU_POLICIES ".tmp", "we");
-    char line[512];
+    char tmp[512], line[512], newline[512];
+    FILE *in = fopen(su_cfg.policies, "re");
+    FILE *out;
     bool done = false;
 
+    /* same directory, so the rename below is atomic */
+    snprintf(tmp, sizeof tmp, "%s.tmp", su_cfg.policies);
+    out = fopen(tmp, "we");
     if (!out) {
         if (in) fclose(in);
         return -1;
     }
     while (in && fgets(line, sizeof line, in)) {
-        char *p = line, name[16];
-        long long lu;
-        if (sscanf(p, "%lld %15s", &lu, name) == 2 && (uid_t)lu == uid) {
-            if (!done)
-                fprintf(out, "%u %s %lld\n", uid, policy_name(policy), (long long)until);
-            done = true;                        /* drop duplicate lines */
-            continue;
+        struct su_pol e;
+        if (su_parse_policy_line(line, &e) == 0 && e.uid == uid) {
+            if (!done &&
+                su_format_policy_line(newline, sizeof newline, uid, policy, until) > 0) {
+                fputs(newline, out);
+                done = true;
+            }
+            continue;                           /* drop duplicate lines */
         }
         fputs(line, out);
     }
     if (in) fclose(in);
-    if (!done)
-        fprintf(out, "%u %s %lld\n", uid, policy_name(policy), (long long)until);
-    fclose(out);
-    set_owner(SU_POLICIES ".tmp", 0, SU_UID_SHELL, 0660);
-    return rename(SU_POLICIES ".tmp", SU_POLICIES);
+    if (!done &&
+        su_format_policy_line(newline, sizeof newline, uid, policy, until) > 0)
+        fputs(newline, out);
+    if (fclose(out) != 0) return -1;
+    set_owner(tmp, 0, SU_UID_SHELL, 0660);
+    return rename(tmp, su_cfg.policies);
 }
 
 /* --- pending requests ---------------------------------------------------- */
 
 static bool pending_contains(uid_t uid)
 {
-    FILE *f = fopen(SU_PENDING, "re");
+    FILE *f = fopen(su_cfg.pending, "re");
     char line[128];
     bool found = false;
 
@@ -219,20 +197,23 @@ static bool pending_contains(uid_t uid)
 
 static void pending_add(uid_t uid)
 {
-    FILE *f = fopen(SU_PENDING, "ae");
+    FILE *f = fopen(su_cfg.pending, "ae");
 
     if (!f) return;
     fprintf(f, "%u %lld\n", uid, (long long)time(NULL));
     fclose(f);
-    set_owner(SU_PENDING, 0, SU_UID_SHELL, 0660);
+    set_owner(su_cfg.pending, 0, SU_UID_SHELL, 0660);
 }
 
 static void pending_remove(uid_t uid)
 {
-    FILE *in = fopen(SU_PENDING, "re");
-    FILE *out = fopen(SU_PENDING ".tmp", "we");
+    char tmp[512];
+    FILE *in = fopen(su_cfg.pending, "re");
+    FILE *out;
     char line[128];
 
+    snprintf(tmp, sizeof tmp, "%s.tmp", su_cfg.pending);
+    out = fopen(tmp, "we");
     if (!out) {
         if (in) fclose(in);
         return;
@@ -243,9 +224,9 @@ static void pending_remove(uid_t uid)
         fputs(line, out);
     }
     if (in) fclose(in);
-    fclose(out);
-    set_owner(SU_PENDING ".tmp", 0, SU_UID_SHELL, 0660);
-    rename(SU_PENDING ".tmp", SU_PENDING);
+    if (fclose(out) != 0) return;
+    set_owner(tmp, 0, SU_UID_SHELL, 0660);
+    rename(tmp, su_cfg.pending);
 }
 
 /* --- uid <-> package, from the platform's own list ----------------------- */
@@ -288,16 +269,16 @@ static void pkg_for_uid(uid_t uid, char *out, size_t cap)
 
 static uid_t manager_uid(void)
 {
-    uid_t u = pkg_uid(SU_MANAGER_PKG);
+    uid_t u = pkg_uid(su_cfg.manager_pkg);
 
-    return u != (uid_t)-1 ? u : pkg_uid(SU_SHELL_PKG);
+    return u != (uid_t)-1 ? u : pkg_uid(su_cfg.shell_pkg);
 }
 
 static bool is_manager(uid_t uid)
 {
     if (uid == 0 || uid == SU_UID_SHELL) return true;
     if (uid == (uid_t)-1) return false;
-    return uid == pkg_uid(SU_MANAGER_PKG) || uid == pkg_uid(SU_SHELL_PKG);
+    return uid == pkg_uid(su_cfg.manager_pkg) || uid == pkg_uid(su_cfg.shell_pkg);
 }
 
 /* --- the prompt ---------------------------------------------------------- */
@@ -313,7 +294,7 @@ static void launch_manager(void)
         dup2(fd, 1);
         dup2(fd, 2);
     }
-    execl("/system/bin/am", "am", "start", "-n", SU_REQUEST_ACT, NULL);
+    execl("/system/bin/am", "am", "start", "-n", su_cfg.request_act, NULL);
     _exit(127);
 }
 
@@ -321,19 +302,19 @@ static void launch_manager(void)
 static int ask(uid_t uid)
 {
     if (manager_uid() == (uid_t)-1) {
-        logmsg("ASK uid=%u manager app %s is not installed", uid, SU_MANAGER_PKG);
+        logmsg("ASK uid=%u manager app %s is not installed", uid, su_cfg.manager_pkg);
         return SU_POLICY_DENY;
     }
     if (!pending_contains(uid)) {
         pending_add(uid);
-        logmsg("ASK uid=%u prompting via %s", uid, SU_MANAGER_PKG);
+        logmsg("ASK uid=%u prompting via %s", uid, su_cfg.manager_pkg);
         launch_manager();
     }
     for (int i = 0; i < PROMPT_TIMEOUT_MS / 250; i++) {
         int p = policy_for(uid, NULL);
         if (p != SU_POLICY_ASK) {
             pending_remove(uid);
-            logmsg("ASK uid=%u answered: %s", uid, policy_name(p));
+            logmsg("ASK uid=%u answered: %s", uid, su_policy_name(p));
             return p;
         }
         usleep(250000);
@@ -541,12 +522,7 @@ static int run_shell(uid_t peer, char *shell, char *cmd, char *env, int *fds)
 
 static void reply(int conn, int32_t rc, const char *text)
 {
-    struct su_reply r;
-
-    r.rc = rc;
-    r.len = text ? (uint32_t)strlen(text) : 0;
-    write_all(conn, &r, sizeof r);
-    if (r.len) write_all(conn, text, r.len);
+    su_send_reply(conn, rc, text);
 }
 
 /* --- connection handling ------------------------------------------------- */
@@ -570,8 +546,8 @@ static void buf_add(struct buf *b, const char *fmt, ...)
 
 static char *list_text(void)
 {
-    struct pol v[128];
-    int n = load_policies(v, 128);
+    struct su_pol v[MAX_POLICIES];
+    int n = load_policies(v, MAX_POLICIES);
     struct buf b = { malloc(8192), 0, 8192 };
 
     if (!b.p) return NULL;
@@ -580,7 +556,7 @@ static char *list_text(void)
     for (int i = 0; i < n; i++) {
         char pkg[256];
         pkg_for_uid(v[i].uid, pkg, sizeof pkg);
-        buf_add(&b, "%-6u %-5s %-12lld %s\n", v[i].uid, policy_name(v[i].policy),
+        buf_add(&b, "%-6u %-5s %-12lld %s\n", v[i].uid, su_policy_name(v[i].policy),
                 (long long)v[i].until, pkg[0] ? pkg : "");
     }
     return b.p;
@@ -588,7 +564,7 @@ static char *list_text(void)
 
 static char *pending_text(void)
 {
-    FILE *f = fopen(SU_PENDING, "re");
+    FILE *f = fopen(su_cfg.pending, "re");
     struct buf b = { malloc(4096), 0, 4096 };
     char line[128];
 
@@ -614,7 +590,7 @@ static char *log_text(void)
     static char buf[65536];
     static char *starts[4096];
     int n = 0, first;
-    int rc = read_file(SU_LOG, buf, sizeof buf);
+    int rc = read_file(su_cfg.log, buf, sizeof buf);
     size_t len;
 
     if (rc <= 0) return strdup("(no log yet)\n");
@@ -630,42 +606,12 @@ static char *log_text(void)
 static void handle(int conn, uid_t peer)
 {
     struct su_req r;
-    struct iovec iov = { &r, sizeof r };
-    char cmsgbuf[CMSG_SPACE(3 * sizeof(int))];
-    struct msghdr msg;
     int fds[3] = { -1, -1, -1 };
     char *payload = NULL;
 
-    memset(&msg, 0, sizeof msg);
-    msg.msg_iov = &iov;
-    msg.msg_iovlen = 1;
-    msg.msg_control = cmsgbuf;
-    msg.msg_controllen = sizeof cmsgbuf;
-
-    if (recvmsg(conn, &msg, 0) != (ssize_t)sizeof r || r.magic != SU_MAGIC) {
+    if (su_recv_request(conn, &r, &payload, fds) != 0) {
         logmsg("dropping malformed request from uid=%u", peer);
         return;
-    }
-    for (struct cmsghdr *c = CMSG_FIRSTHDR(&msg); c; c = CMSG_NXTHDR(&msg, c)) {
-        if (c->cmsg_level == SOL_SOCKET && c->cmsg_type == SCM_RIGHTS) {
-            int n = (int)((c->cmsg_len - CMSG_LEN(0)) / sizeof(int));
-            for (int i = 0; i < n && i < 3; i++)
-                memcpy(&fds[i], CMSG_DATA(c) + i * sizeof(int), sizeof(int));
-        }
-    }
-    if (r.len) {
-        payload = calloc(1, r.len + 4);         /* slack for the NUL splits */
-        size_t got = 0;
-        while (got < r.len) {
-            ssize_t n = read(conn, payload + got, r.len - got);
-            if (n <= 0) break;
-            got += n;
-        }
-        if (got != r.len) {
-            logmsg("short payload from uid=%u (%zu/%u)", peer, got, r.len);
-            free(payload);
-            goto out;
-        }
     }
 
     switch (r.op) {
@@ -673,6 +619,8 @@ static void handle(int conn, uid_t peer)
         char *shell, *cmd, *env, *end = payload + r.len;
         int pol;
 
+        /* the payload is shell\0cmd\0env...: every boundary below is checked
+         * against `end` so a truncated one cannot read past the buffer */
         if (!payload || !memchr(payload, 0, r.len)) {
             reply(conn, 1, "malformed RUN payload\n");
             break;
@@ -681,6 +629,7 @@ static void handle(int conn, uid_t peer)
         cmd = shell + strlen(shell) + 1;
         if (cmd > end) { reply(conn, 1, "malformed RUN payload\n"); break; }
         env = cmd + strlen(cmd) + 1;
+        if (env > end) { reply(conn, 1, "malformed RUN payload\n"); break; }
 
         pol = peer == 0 ? SU_POLICY_ALLOW : policy_for(peer, NULL);
         if (pol == SU_POLICY_ASK) pol = ask(peer);
@@ -733,7 +682,7 @@ static void handle(int conn, uid_t peer)
             if (rc == 0) {
                 pending_remove((uid_t)r.uid);
                 logmsg("SET uid=%u %s until=%lld by uid=%u", r.uid,
-                       policy_name((int)r.policy), (long long)r.until, peer);
+                       su_policy_name((int)r.policy), (long long)r.until, peer);
             }
             reply(conn, rc == 0 ? 0 : 1, rc == 0 ? NULL : "cannot write policy\n");
             break;
@@ -754,7 +703,6 @@ static void handle(int conn, uid_t peer)
         break;
     }
 
-out:
     for (int i = 0; i < 3; i++)
         if (fds[i] >= 0) close(fds[i]);
     free(payload);
@@ -767,19 +715,24 @@ static int listen_socket(void)
     struct sockaddr_un addr;
     int fd;
 
-    unlink(SU_SOCKET);
+    unlink(su_cfg.sock);
     fd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
     if (fd < 0) return -1;
+    if (strlen(su_cfg.sock) >= sizeof addr.sun_path) {
+        logmsg("FATAL: socket path too long: %s", su_cfg.sock);
+        close(fd);
+        return -1;
+    }
     memset(&addr, 0, sizeof addr);
     addr.sun_family = AF_UNIX;
-    snprintf(addr.sun_path, sizeof addr.sun_path, "%s", SU_SOCKET);
+    memcpy(addr.sun_path, su_cfg.sock, strlen(su_cfg.sock));
     if (bind(fd, (struct sockaddr *)&addr, sizeof addr) != 0) {
-        logmsg("bind %s: %s", SU_SOCKET, strerror(errno));
+        logmsg("bind %s: %s", su_cfg.sock, strerror(errno));
         return -1;
     }
     if (listen(fd, 8) != 0) return -1;
     /* world-connectable; authorization is the peer uid, not the path */
-    chmod(SU_SOCKET, 0666);
+    chmod(su_cfg.sock, 0666);
     return fd;
 }
 
@@ -796,9 +749,9 @@ static void daemonize(void)
 
 static void seed_policies(bool allow_shell)
 {
-    if (access(SU_POLICIES, F_OK) == 0) return;
+    if (access(su_cfg.policies, F_OK) == 0) return;
     policy_set(SU_UID_SHELL, allow_shell ? SU_POLICY_ALLOW : SU_POLICY_ASK, 0);
-    logmsg("seeded %s with uid %d = %s", SU_POLICIES, SU_UID_SHELL,
+    logmsg("seeded %s with uid %d = %s", su_cfg.policies, SU_UID_SHELL,
            allow_shell ? "allow" : "ask");
 }
 
@@ -807,6 +760,8 @@ int main(int argc, char **argv)
     bool allow_shell = true;
     int lfd;
     int devnull;
+
+    su_config_load();
 
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-f")) foreground = true;
@@ -819,7 +774,7 @@ int main(int argc, char **argv)
 
     if (!foreground) {
         daemonize();
-        logfd = open(SU_LOG, O_WRONLY | O_CREAT | O_APPEND, 0644);
+        logfd = open(su_cfg.log, O_WRONLY | O_CREAT | O_APPEND, 0644);
         devnull = open("/dev/null", O_RDWR);
         if (logfd >= 0) {
             dup2(logfd, 1);
@@ -827,7 +782,7 @@ int main(int argc, char **argv)
         }
         if (devnull >= 0) dup2(devnull, 0);
     } else {
-        logfd = open(SU_LOG, O_WRONLY | O_CREAT | O_APPEND, 0644);
+        logfd = open(su_cfg.log, O_WRONLY | O_CREAT | O_APPEND, 0644);
     }
     if (logfd < 0) logfd = 2;
 
@@ -842,24 +797,23 @@ int main(int argc, char **argv)
     }
 
     seed_policies(allow_shell);
-    set_owner(SU_LOG, 0, SU_UID_SHELL, 0660);
-
+    set_owner(su_cfg.log, 0, SU_UID_SHELL, 0660);
     lfd = listen_socket();
     if (lfd < 0) {
-        logmsg("FATAL: cannot listen on %s: %s", SU_SOCKET, strerror(errno));
+        logmsg("FATAL: cannot listen on %s: %s", su_cfg.sock, strerror(errno));
         return 1;
     }
 
     {
-        FILE *f = fopen(SU_PID, "we");
+        FILE *f = fopen(su_cfg.pid, "we");
         if (f) {
             fprintf(f, "%d\n", (int)getpid());
             fclose(f);
-            set_owner(SU_PID, 0, SU_UID_SHELL, 0644);
+            set_owner(su_cfg.pid, 0, SU_UID_SHELL, 0644);
         }
     }
     logmsg("sud %s up: uid=%d pid=%d socket=%s", SU_VERSION, (int)geteuid(),
-           (int)getpid(), SU_SOCKET);
+           (int)getpid(), su_cfg.sock);
 
     for (;;) {
         struct ucred cred;
@@ -886,6 +840,6 @@ int main(int argc, char **argv)
         }
         close(conn);
     }
-    unlink(SU_SOCKET);
+    unlink(su_cfg.sock);
     return 0;
 }

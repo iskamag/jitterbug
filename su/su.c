@@ -36,6 +36,8 @@
 #include <unistd.h>
 
 #include "client.h"
+#include "config.h"
+#include "policy.h"
 #include "proto.h"
 
 /* bash first: a privileged bash is what was asked for; sh is always there */
@@ -157,7 +159,7 @@ static int run_via_daemon(const char *shell, const char *cmd)
     int fds[3], fd, rc;
     size_t off = 0;
 
-    fd = su_connect(SU_SOCKET);
+    fd = su_connect();
     if (fd < 0) {
         free(env);
         return -1;
@@ -256,6 +258,8 @@ int main(int argc, char **argv)
 {
     const char *cmd = NULL, *shell = NULL, *context = NULL;
     int rc;
+
+    su_config_load();
 
     for (int i = 1; i < argc; i++) {
         const char *a = argv[i];

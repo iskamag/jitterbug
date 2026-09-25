@@ -9,7 +9,7 @@
 # executes it with output in /data/local/tmp/out (root, chmod 666 by the
 # wrapper's first line).
 set -u
-DEV="${CHANNEL_DEV:-U4G6R20811000860}"
+DEV="${CHANNEL_DEV:-${SER:?set SER to the device serial}}"
 WAIT=1
 [ "${1:-}" = "-s" ] && { WAIT=0; shift; }
 CMD="${1:?usage: channel.sh [-s] '<commands>'}"

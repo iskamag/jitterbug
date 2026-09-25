@@ -25,6 +25,8 @@
 #include <unistd.h>
 
 #include "client.h"
+#include "config.h"
+#include "policy.h"
 #include "proto.h"
 
 static void usage(void)
@@ -37,13 +39,13 @@ static int call(struct su_req *req)
 {
     struct su_reply rep;
     char *text = NULL;
-    int fd = su_connect(SU_SOCKET);
+    int fd = su_connect();
     int rc;
 
     if (fd < 0) {
         fprintf(stderr, "sumgr: cannot reach %s: %s\n"
                         "       is sud running? (tools/su/install.sh)\n",
-                SU_SOCKET, strerror(errno));
+                su_cfg.sock, strerror(errno));
         return 1;
     }
     rc = su_call(fd, req, NULL, NULL, &rep, &text);
@@ -73,6 +75,7 @@ int main(int argc, char **argv)
 {
     struct su_req req;
 
+    su_config_load();
     memset(&req, 0, sizeof req);
     req.magic = SU_MAGIC;
 

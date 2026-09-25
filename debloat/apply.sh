@@ -7,11 +7,11 @@
 #   debloat/apply.sh --restore-all   # re-enable every package in targets.txt
 #
 # TARGETS=<file> stages the rollout (e.g. groups A+B first, then A+B+C).
-# The device work goes through the root channel (tools/su -> sud, brought up by
-# tools/rootshell.sh); wrap the call in tools/devlock.sh.
+# The device work goes through the root channel (su -> sud, brought up by
+# channel/rootshell.sh); wrap the call in tools/devlock.sh.
 set -u
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-SER=${SER:-U4G6R20811000860}
+SER=${SER:?set SER to the device serial}
 A="adb -s $SER"
 D=/data/local/tmp
 SU=$D/su

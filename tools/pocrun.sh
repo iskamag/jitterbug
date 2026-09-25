@@ -13,7 +13,7 @@
 #   4. collect: poll the rc file (bounded); if the device stops answering,
 #              wait (bounded) for it to come back and harvest the dropbox
 #              panic record (dumpsys dropbox --print is shell-readable here)
-#   5. persist: everything into <repo>/exploits/CVE-2022-38181/runs/<ts>-<tag>/
+#   5. persist: everything into <repo>/runs/<ts>-<tag>/
 #              host.log  dev.log  rc  meta.txt  dropbox.txt  panic.txt
 #
 # It NEVER reboots, never loops, and never probes an address the caller did
@@ -21,7 +21,7 @@
 set -u
 
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-SER=${SER:-U4G6R20811000860}
+SER=${SER:?set SER to the device serial}
 DEVNAME=mali_boot
 TIMEOUT=600
 BOOTWAIT=300
@@ -33,7 +33,7 @@ MIN_UPTIME=${MIN_UPTIME:-60}    # just enough for adb/services after a reboot.
 				# panicked at 5038s uptime (jit_free race loss
 				# fires at any boot age); iteration speed is
 				# worth more than the defunct heuristic.
-RUNS=${RUNS:-$REPO/exploits/CVE-2022-38181/runs}
+RUNS=${RUNS:-$REPO/runs}
 
 usage() { sed -n '2,25p' "$0"; exit 2; }
 

@@ -12,6 +12,9 @@ import java.nio.charset.StandardCharsets;
 
 /** The sud protocol, from the app side: see tools/su/proto.h. */
 final class SuClient {
+    // The daemon's socket.  build.sh substitutes this line with SU_DIR from
+    // the environment, so the app and sud agree on the toolbox directory;
+    // the default matches su/config.c.
     static final String SOCKET = "/data/local/tmp/su.sock";
     private static final int MAGIC = 0x53554431;
 

@@ -2,8 +2,8 @@
 # install.sh -- deploy su / sud / sumgr, start the daemon, prove the shell is
 # running as uid 0 with the full capability set.
 #
-#   tools/su/install.sh              per boot (needs the rshell channel up)
-#   SETUID=1 tools/su/install.sh     also remount /data suid and 4755 su
+#   su/install.sh                    per boot (needs the rshell channel up)
+#   SETUID=1 su/install.sh           also remount /data suid and 4755 su
 #
 # The daemon has to be started through the rshell channel: that is the only
 # process on this device running as uid 0 with a full capability set, and sud
@@ -11,15 +11,21 @@
 # SECURE_NOROOT is locked and adbd's bounding set is 0xc0.)
 set -euo pipefail
 
-SER=${SER:-U4G6R20811000860}
+# The device serial has no safe default; set SER (or use adb's only device).
+if [ -z "${SER:-}" ]; then
+    SER=$(adb devices | awk 'NR>1 && $2=="device" {print $1; exit}')
+    [ -n "$SER" ] || { echo "install.sh: set SER=<serial> (adb devices)"; exit 2; }
+fi
 DIR=$(cd "$(dirname "$0")" && pwd)
-REPO=$(cd "$DIR/../.." && pwd)
-D=/data/local/tmp
+REPO=$(cd "$DIR/.." && pwd)
+# honour SU_DIR so the daemon's paths and this script's agree
+D=${SU_DIR:-/data/local/tmp}
 MANAGER=${SU_MANAGER_PKG:-com.matepad.sumgr}
 TERMUX_BIN=/data/data/com.termux/files/usr/bin
 A=(adb -s "$SER")
 
-root() { "$REPO/tools/rootcmd.sh" "$*"; }
+# the channel scripts live in ../channel in this layout
+root() { "$REPO/channel/rootcmd.sh" "$*"; }
 say()  { printf '[su] %s\n' "$*"; }
 
 "$DIR/build.sh" >/dev/null
@@ -32,7 +38,7 @@ done
 
 say "root channel probe"
 if ! root 'id' | grep -q 'uid=0'; then
-    say "no root channel -- run tools/rootshell.sh first"
+    say "no root channel -- run channel/rootshell.sh first"
     exit 1
 fi
 
@@ -45,8 +51,8 @@ for p in /proc/[0-9]*; do
   c=$(cat $p/cmdline 2>/dev/null | tr "\0" " ")
   pid=${p#/proc/}
   case "$c" in
-    "sh /data/local/tmp/r.sh"*) [ "$pid" = "$me" ] || { kill -9 "$pid"; echo "killed extra channel $pid"; } ;;
-    "/data/local/tmp/sud"*)      kill -9 "$pid"; echo "killed stale sud $pid" ;;
+    "sh $D/r.sh"*) [ "$pid" = "$me" ] || { kill -9 "$pid"; echo "killed extra channel $pid"; } ;;
+    "$D/sud"*)      kill -9 "$pid"; echo "killed stale sud $pid" ;;
   esac
 done
 sleep 0.3' 2>&1 | sed 's/^/[su] /'
@@ -59,7 +65,7 @@ echo \"pid=\$(cat $D/sud.pid 2>/dev/null)\"
 tail -1 $D/sud.log" 2>&1 | sed 's/^/[su] /'
 
 # Termux is where this operation is driven from, and its $PATH does not have
-# /data/local/tmp in it, so give it real commands.  Checked as root: the app's
+# $D in it, so give it real commands.  Checked as root: the app's
 # home is not stat-able by the shell uid.
 say "linking su/sumgr into Termux's bin (if installed)"
 root "if [ -d $TERMUX_BIN ]; then

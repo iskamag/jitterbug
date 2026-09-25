@@ -8,7 +8,7 @@ shift 2
 [ "${1:-}" = "--" ] && shift
 [ $# -gt 0 ] || { echo "devlock: no command" >&2; exit 2; }
 
-SER=${SER:-U4G6R20811000860}
+SER=${SER:?set SER to the device serial}
 A="adb -s $SER"
 LOCK=/tmp/matepad_device.lock
 STAMP=/tmp/matepad_device.last

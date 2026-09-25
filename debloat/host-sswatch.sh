@@ -11,7 +11,7 @@
 # debloat/analyze-sswatch.py <file> --all
 set -u
 SECS=${1:-600}
-SER=${SER:-U4G6R20811000860}
+SER=${SER:-0123456789ABCDEF}
 SU=${SU:-/data/local/tmp/su}
 OUT=${OUT:-debloat/logs/sswatch-$(date -u +%Y%m%dT%H%M%SZ).txt}
 echo "# host-sswatch $SECS s -> $OUT" | tee "$OUT"
