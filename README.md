@@ -7,7 +7,7 @@ The device has a locked bootloader and no root. Root is obtained from an `adb`
 shell (uid 2000, `u:r:shell:s0`) using two known CVEs; a `su` is then kept
 alive for the rest of the boot.
 
-<img src="assets/logo.svg" alt="JITterbug" width="220">
+<img src="assets/logo.svg" alt="JITterbug" width="320">
 
 ## Tree
 
