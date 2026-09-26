@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640" role="img" aria-labelledby="title desc">
+<title id="title">JITterbug</title>
+<desc id="desc">A cheerful aviator bug rides a rounded raspberry rocket with sage-green leaf fins trailing a broad horizontal plume of peach and coral fire, above a monospace # JITterbug wordmark.</desc>
+<defs>
+<linearGradient id="berryMid" x1="0" y1="0" x2=".55" y2="1"><stop stop-color="#fb7962"/><stop offset=".42" stop-color="#e84d53"/><stop offset="1" stop-color="#bb3049"/></linearGradient>
+<linearGradient id="berryDark" x1="0" y1="0" x2=".55" y2="1"><stop stop-color="#e75d59"/><stop offset=".42" stop-color="#ce3e4d"/><stop offset="1" stop-color="#9e3047"/></linearGradient>
+<linearGradient id="berryWash" x1="0" y1="0" x2=".45" y2="1"><stop stop-color="#ffb075" stop-opacity=".15"/><stop offset=".45" stop-color="#ff784f" stop-opacity="0"/><stop offset="1" stop-color="#641f37" stop-opacity=".2"/></linearGradient>
+<linearGradient id="ivory" x1="0" y1="0" x2=".6" y2="1"><stop stop-color="#fff0e9"/><stop offset="1" stop-color="#dbb5a6"/></linearGradient>
+<linearGradient id="leather" x1="0" y1="0" x2=".5" y2="1"><stop stop-color="#b77950"/><stop offset="1" stop-color="#87523f"/></linearGradient>
+<linearGradient id="flame" x1="0" y1="0" x2="1" y2=".7"><stop stop-color="#ed9d91"/><stop offset="1" stop-color="#d87979"/></linearGradient>
+<linearGradient id="glass" x2=".7" y2="1"><stop stop-color="#a9c4b3"/><stop offset="1" stop-color="#557e81"/></linearGradient>
+
+</defs>
+<!-- Warm plum outlines and muted colors keep the mascot soft and playful. -->
+<g stroke="#703544" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+<!-- A broad horizontal exhaust opens into three long, curling tongues. -->
+<path d="M433 338
+ C465 340 475 317 499 311
+ C522 305 540 314 558 307
+ C568 303 575 295 580 287
+ C583 309 569 328 549 333
+ C538 336 533 344 540 351
+ C549 362 570 348 585 353
+ C600 358 607 368 625 364
+ C615 389 590 399 566 391
+ C550 386 541 391 547 402
+ C558 421 587 437 610 428
+ C597 452 566 455 544 443
+ C526 433 521 416 508 415
+ C506 430 517 446 532 453
+ C508 461 487 445 480 428
+ C472 409 454 414 435 419Z" fill="url(#flame)"/>
+<path d="M437 351
+ C466 353 483 328 506 325
+ C526 322 545 329 560 317
+ C551 334 520 337 521 356
+ C522 378 550 380 568 373
+ C584 367 594 378 609 376
+ C591 390 567 380 550 382
+ C529 385 531 404 543 419
+ C554 433 574 442 590 440
+ C567 450 543 434 530 416
+ C519 401 502 395 495 405
+ C491 416 499 434 509 441
+ C490 433 490 409 471 397
+ L439 392Z" fill="#f8c3b7" stroke="none"/>
+<path d="M440 365
+ C465 368 481 344 504 341
+ C490 353 490 368 507 377
+ C520 384 531 373 544 374
+ C533 388 512 392 498 381
+ C485 372 474 383 463 386
+ L440 386Z" fill="#fff0e9" stroke="none"/>
+<!-- Small embers extend the horizontal motion without crowding the tips. -->
+<path d="M595 320C604 313 614 313 620 318C615 327 603 328 595 320Z
+ M590 407C597 401 605 402 611 407C604 413 596 413 590 407Z" fill="#e5a09a" stroke-width="2.5"/>
+</g>
+<!-- A small sage calyx doubles as the rocket's swept tail fins. -->
+<g fill="#8fa893" stroke="#703544" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
+<path d="M418 350C438 321 462 313 488 318C479 329 475 341 472 355C457 352 444 360 431 373Z"/>
+<path d="M435 386C464 388 481 413 483 445C468 435 453 434 438 437C441 418 429 410 421 402Z"/>
+<path d="M441 360Q464 359 482 374Q468 377 460 391L436 391Z" fill="#a9baa0"/>
+<path d="M437 352L467 330M442 403L470 431" fill="none" stroke="#647f75" stroke-width="2.5"/>
+</g>
+<g><path d="M263.7 238.3Q258.0 228.7 294.6 228.7Q333.8 228.7 335.7 231.3Q337.7 233.8 346.5 252.9Q353.1 271.9 326.9 277.6Q301.5 283.2 285.6 265.6Q268.9 248.0 263.7 238.3Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M291.1 248.2Q282.2 237.0 299.8 236.2" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M337.8 254.6Q331.3 239.4 368.5 239.4Q406.6 239.4 424.3 263.1Q438.3 286.8 400.6 284.6Q363.8 282.4 353.3 276.1Q342.9 269.8 337.8 254.6Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M357.5 262.7Q348.1 251.5 367.8 250.6" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M229.5 259.6Q221.9 241.8 246.0 241.8Q272.0 241.8 288.9 258.9Q304.9 275.9 306.2 279.0Q307.5 282.1 306.9 286.2Q306.1 290.3 281.6 294.3Q258.2 298.4 256.6 298.4Q254.9 298.4 245.4 287.9Q235.9 277.5 229.5 259.6Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M253.5 274.9Q247.1 263.7 263.6 262.8" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M267.3 263.7l3 0" fill="none" stroke="#f9d9d0" stroke-width="2.3" stroke-linecap="round"/><path d="M369.7 296.8Q367.2 315.1 343.6 312.1Q320.6 309.1 313.2 302.6Q305.6 296.0 302.2 286.5Q298.5 276.9 323.4 271.3Q348.9 265.8 359.6 272.1Q370.2 278.4 369.7 296.8Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M187.3 271.7Q186.6 268.8 209.9 268.8Q236.0 268.8 245.1 278.4Q254.2 288.0 257.0 297.9Q259.5 307.9 259.2 308.8Q259.0 309.5 233.8 311.3Q210.7 313.1 199.6 293.9Q188.1 274.6 187.3 271.7Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M225.0 278.1l3 0" fill="none" stroke="#f9d9d0" stroke-width="2.3" stroke-linecap="round"/><path d="M391.5 278.5Q421.9 280.2 431.3 299.9Q438.3 319.6 402.8 319.6Q368.2 319.6 363.7 316.5Q359.0 313.4 361.4 295.0Q361.8 276.7 391.5 278.5Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M372.1 301.0Q365.6 291.0 384.6 290.2" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M167.2 299.5Q163.9 279.9 180.3 279.9Q198.3 279.9 207.7 295.0Q216.8 310.1 212.7 318.9Q208.4 327.7 198.2 328.0Q188.4 328.3 181.0 328.3Q174.0 328.3 171.8 323.6Q169.6 319.1 167.2 299.5Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M277.1 290.0Q301.9 285.9 303.0 285.9Q304.2 285.9 316.6 296.2Q328.7 306.5 321.8 321.0Q313.7 335.4 287.3 333.0Q262.1 330.5 259.8 325.5Q257.3 320.5 255.2 309.4Q252.5 298.4 253.0 296.3Q253.4 294.1 277.1 290.0Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M266.9 306.3Q261.8 295.2 279.3 294.3" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M128.9 309.0Q128.3 300.4 146.4 300.4Q166.4 300.4 170.4 308.3Q174.4 316.2 175.4 326.0Q176.2 335.8 175.5 337.6Q174.9 339.3 164.3 343.8Q154.1 348.3 146.3 348.3Q138.8 348.3 134.2 332.9Q129.4 317.5 128.9 309.0Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M144.2 324.9Q142.1 313.7 152.8 312.9" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M261.1 311.3Q265.1 318.9 266.2 325.3Q267.2 331.6 263.7 338.3Q260.2 345.0 244.7 347.0Q229.9 349.0 224.4 349.0Q219.1 349.0 210.2 337.0Q201.2 324.9 205.3 316.2Q209.2 307.4 232.1 305.6Q257.0 303.8 261.1 311.3Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M223.0 327.8Q219.5 316.7 235.1 315.8" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M312.4 318.4Q318.9 304.5 323.5 304.5Q328.1 304.5 346.7 307.0Q366.0 309.4 370.6 312.5Q375.4 315.6 374.0 334.0Q370.6 352.4 365.6 352.7Q360.4 353.0 341.3 353.0Q322.7 353.0 314.1 342.6Q305.1 332.3 312.4 318.4Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M326.2 327.2Q321.6 317.2 340.1 316.3" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M402.2 314.1Q438.5 314.1 443.5 332.7Q446.2 351.3 414.8 357.1Q383.5 362.8 373.0 356.8Q362.3 350.8 365.5 332.4Q366.8 314.0 402.2 314.1Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M380.2 337.7Q375.6 327.0 396.5 326.1" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M104.4 320.9Q104.2 310.0 117.7 310.0Q132.0 310.0 136.5 324.4Q141.0 338.8 141.3 345.3Q141.4 351.8 129.7 357.8Q118.6 363.8 111.6 347.8Q104.6 331.7 104.4 320.9Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M114.7 333.5Q113.2 323.0 122.2 322.2" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M215.2 333.0Q223.3 343.5 223.6 348.7Q223.9 354.1 220.4 361.3Q216.6 368.5 200.1 369.9Q184.7 371.3 178.5 357.3Q172.0 343.2 171.7 336.5Q171.2 329.7 172.2 326.7Q173.2 323.6 189.5 323.1Q207.2 322.6 215.2 333.0Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M183.9 343.8Q181.5 333.4 194.2 332.5" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M320.4 337.6Q327.6 346.0 328.1 351.8Q328.4 357.7 320.9 365.9Q313.2 374.3 292.7 374.3Q273.0 374.3 265.6 362.1Q257.7 349.8 257.1 342.1Q256.3 334.4 258.8 329.3Q261.1 324.3 286.2 326.7Q312.8 329.2 320.4 337.6Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M274.4 347.9Q271.1 337.3 288.6 336.4" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M89.3 354.3Q89.3 330.3 98.7 330.3Q107.8 330.3 113.3 342.7Q118.8 355.1 118.8 361.5Q118.8 367.8 117.1 373.1Q115.4 378.3 102.3 378.3Q89.3 378.3 89.3 354.3Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M99.6 355.9Q98.4 347.3 105.9 346.4" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M107.6 344.7l3 0" fill="none" stroke="#f9d9d0" stroke-width="2.3" stroke-linecap="round"/><path d="M154.8 342.3Q169.1 335.9 171.5 335.9Q173.8 335.9 181.8 352.5Q189.5 369.0 183.3 378.4Q177.1 387.7 161.6 382.5Q147.2 377.5 144.4 363.0Q141.3 348.6 154.8 342.3Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M154.9 358.3Q153.3 347.1 165.0 346.3" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M267.9 351.6Q276.3 364.3 276.2 371.7Q275.9 379.0 268.5 385.4Q261.0 391.8 257.5 391.8Q254.0 391.8 237.6 388.6Q222.0 385.4 217.0 376.7Q211.8 368.0 211.8 364.4Q211.8 360.8 215.6 352.5Q219.4 344.3 238.7 341.6Q259.2 338.9 267.9 351.6Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M227.9 368.5Q225.8 357.4 241.9 356.6" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M338.0 348.1Q352.2 347.2 362.0 347.2Q371.8 347.2 381.6 352.5Q391.4 357.9 390.5 375.6Q387.7 393.2 384.6 395.8Q381.5 398.3 352.8 398.3Q325.1 398.3 315.9 387.3Q306.1 376.2 306.3 372.7Q306.4 369.2 315.4 359.2Q324.0 349.1 338.0 348.1Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M330.5 369.9Q327.9 358.7 348.6 357.9" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M129.6 352.1Q142.4 345.4 142.9 345.4Q143.4 345.4 144.7 346.3Q146.1 347.2 149.3 361.6Q152.2 376.1 144.2 388.6Q136.4 401.1 124.4 401.1Q113.0 401.1 113.4 385.8Q113.5 370.5 115.4 364.7Q117.2 358.7 129.6 352.1Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M408.4 353.1Q437.3 347.9 453.0 347.9Q468.9 347.9 469.8 368.8Q467.8 389.7 421.5 391.7Q376.2 393.7 378.9 376.1Q379.9 358.5 408.4 353.1Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M429.4 355.5l3 0" fill="none" stroke="#f9d9d0" stroke-width="2.3" stroke-linecap="round"/><path d="M216.9 396.8Q204.6 411.2 203.5 411.2Q202.4 411.2 188.1 406.6Q174.7 402.2 173.8 392.7Q172.7 383.3 178.6 374.0Q184.5 364.7 199.9 363.4Q216.3 362.0 222.8 372.2Q229.1 382.5 216.9 396.8Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M184.7 387.3Q183.5 376.1 197.2 375.2" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M179.5 390.8Q180.5 399.8 180.4 400.3Q180.4 400.7 172.1 410.8Q163.8 420.9 146.9 420.9Q131.3 420.9 132.1 408.9Q132.7 396.7 140.3 384.1Q148.2 371.4 162.8 376.6Q178.5 381.7 179.5 390.8Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M148.0 398.0Q147.1 386.8 158.5 386.0" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M160.6 386.8l3 0" fill="none" stroke="#f9d9d0" stroke-width="2.3" stroke-linecap="round"/><path d="M263.0 380.0Q271.5 372.5 292.7 372.5Q314.7 372.5 324.6 383.2Q334.0 394.1 333.4 397.9Q332.7 401.8 324.0 410.6Q315.1 419.4 283.5 419.1Q254.0 418.8 253.9 407.9Q253.5 396.9 254.0 392.3Q254.4 387.5 263.0 380.0Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M423.7 385.2Q466.5 383.3 461.9 406.3Q453.9 429.2 446.7 429.2Q439.6 429.2 410.5 426.7Q381.6 424.3 379.6 417.5Q377.4 410.8 380.0 399.0Q381.9 387.0 423.7 385.2Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M397.9 409.8Q397.6 399.1 419.2 398.3" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M211.1 395.9Q222.5 382.1 227.3 382.1Q232.2 382.1 246.6 385.0Q261.8 387.9 259.7 405.1Q256.4 422.3 230.0 425.9Q205.9 429.6 203.0 419.6Q199.7 409.5 211.1 395.9Z" fill="url(#berryMid)" stroke="#873348" stroke-width="2.7"/><path d="M215.6 401.4Q214.8 390.7 229.8 389.9" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M348.3 393.8Q369.6 393.0 375.0 393.0Q380.5 393.0 385.6 404.9Q389.6 416.9 387.9 422.3Q386.0 427.8 380.7 431.6Q375.3 435.4 342.0 439.2Q310.0 443.0 308.9 430.7Q306.9 418.5 307.3 416.8Q307.7 415.1 317.8 404.8Q327.5 394.5 348.3 393.8Z" fill="url(#berryDark)" stroke="#873348" stroke-width="2.7"/><path d="M331.3 414.4Q331.2 403.2 352.0 402.3" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M355.8 403.2l3 0" fill="none" stroke="#f9d9d0" stroke-width="2.3" stroke-linecap="round"/><path d="M168.0 407.1Q173.8 399.9 179.0 399.9Q184.4 399.9 194.9 403.3Q205.9 406.7 208.3 413.5Q210.5 420.4 209.2 427.5Q207.7 434.7 203.6 441.4Q199.5 448.2 177.4 448.2Q157.7 448.2 160.3 431.3Q162.3 414.4 168.0 407.1Z" fill="url(#berryDark)" stroke="#873348" stroke-width="2.7"/><path d="M175.9 420.6Q175.6 410.1 188.0 409.3" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M319.3 424.0Q320.7 434.2 318.7 439.7Q316.6 445.2 286.2 451.7Q257.6 458.2 253.0 458.2Q248.4 458.2 250.8 441.3Q252.1 424.4 253.1 419.9Q254.0 415.3 254.9 414.3Q255.8 413.2 285.5 413.5Q317.4 413.7 319.3 424.0Z" fill="url(#berryDark)" stroke="#873348" stroke-width="2.7"/><path d="M261.1 432.0Q261.7 420.9 279.6 420.0" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M258.8 428.9Q257.6 442.2 254.0 453.2Q249.8 464.2 248.2 466.0Q246.6 467.6 218.4 467.6Q193.1 467.6 198.4 448.3Q202.7 429.0 204.3 426.1Q205.9 423.3 231.3 419.4Q259.2 415.6 258.8 428.9Z" fill="url(#berryDark)" stroke="#873348" stroke-width="2.7"/><path d="M418.3 422.6Q453.1 425.5 443.3 446.4Q430.5 467.4 396.1 464.2Q362.0 460.9 365.7 446.3Q368.1 431.6 376.0 425.7Q383.9 419.8 418.3 422.6Z" fill="url(#berryDark)" stroke="#873348" stroke-width="2.7"/><path d="M381.3 440.2Q383.0 429.4 404.3 428.6" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M354.4 469.1Q336.5 479.2 323.4 479.2Q310.4 479.2 310.4 461.3Q308.5 443.4 309.0 442.2Q309.5 440.9 311.1 439.1Q312.7 437.4 344.6 433.6Q378.1 429.8 375.8 444.5Q372.1 459.2 354.4 469.1Z" fill="url(#berryDark)" stroke="#873348" stroke-width="2.7"/><path d="M278.7 448.0Q310.2 441.2 312.5 441.2Q315.0 441.2 317.1 460.9Q317.0 480.6 314.4 484.8Q311.7 489.0 271.5 489.0Q234.9 489.0 242.7 471.9Q249.4 454.8 278.7 448.0Z" fill="url(#berryDark)" stroke="#873348" stroke-width="2.7"/><path d="M273.0 465.1Q275.4 453.9 294.0 453.1" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M297.2 453.9l3 0" fill="none" stroke="#f9d9d0" stroke-width="2.3" stroke-linecap="round"/><path d="M394.0 458.1Q421.9 460.7 409.1 479.6Q394.0 498.3 357.2 498.3Q321.3 498.3 330.6 484.8Q338.8 471.4 352.7 463.5Q366.5 455.6 394.0 458.1Z" fill="url(#berryDark)" stroke="#873348" stroke-width="2.7"/><path d="M351.6 476.0Q355.3 465.5 375.4 464.7" fill="none" stroke="#f4b4ac" stroke-width="3" stroke-linecap="round" opacity=".8"/></g>
+<!-- The larger rider leans into the race, with both hands and feet gripping the fruit. -->
+<g transform="translate(260 310) rotate(-7) scale(1.16) translate(-260 -310)">
+<g stroke="#703544" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+<!-- Both scarf tails begin at the neck knot and sit in front of the berry. -->
+<path d="M269 267
+ C290 267 301 254 318 257
+ C335 260 345 273 368 262
+ L361 275L369 281
+ C349 291 331 277 316 276
+ C300 275 286 286 271 278Z" fill="#ba5365"/>
+<path d="M273 272C296 277 305 264 319 266C333 268 344 280 358 275" fill="none" stroke="#e58a8b" stroke-width="2.5"/>
+<path d="M265 260
+ C287 251 292 232 311 228
+ C332 223 344 242 367 233
+ C376 230 382 223 388 220
+ L384 234L396 239
+ C377 252 359 254 341 246
+ C327 240 320 239 311 248
+ C299 261 287 277 271 277Z" fill="#d76570"/>
+<path d="M280 261C299 251 299 238 315 237C334 235 344 253 378 241" fill="none" stroke="#efaaa0" stroke-width="3"/>
+<!-- Far legs disappear into the fruit rather than floating above it. -->
+<path d="M281 274l28 8 15 28m-54-34-13 14-8 18" fill="none"/>
+<path d="M255 253C270 239 294 249 307 265L315 282C299 291 278 292 259 283Z" fill="url(#ivory)"/>
+<path d="M278 250q14 13 11 36m7-27q8 9 9 24" fill="none" stroke="#b98b75" stroke-width="2.5"/>
+<path d="M303 264q-6-1-9 2m-17-8-5 1m28 15 5 2" fill="none" stroke="#f7e4dc" stroke-width="2"/>
+<!-- Two near legs grip the upper surface. -->
+<path d="M270 278l-7 23-13 12m39-34 5 24 13 12" fill="none" stroke-width="5"/>
+<path d="M248 311l-5 4m63 0 6 1" fill="none" stroke-width="6"/>
+<!-- Antennae and a stitched leather cap. -->
+<path d="M217 190C208 166 216 150 233 144M246 183C248 160 263 145 283 140" fill="none" stroke-width="2.7"/>
+<path d="M229 145q5-7 11-5-2 6-11 5Z M280 141q4-6 11-4-3 5-11 4Z" fill="#996046" stroke-width="2"/>
+<!-- The tilted head and leaning body follow the direction of travel. -->
+<path d="M184 216C182 191 202 180 225 181C252 182 272 201 273 224C275 245 257 263 231 269C205 275 186 260 183 243Z" fill="url(#ivory)"/>
+<path d="M188 243q-1 19 26 23" fill="none" stroke="#fff1eb" stroke-width="3"/>
+<path d="M181 220C176 201 187 180 208 174C235 166 259 181 268 204L259 218C237 204 209 205 181 220Z" fill="url(#leather)"/>
+<path d="M182 211Q216 188 258 205" fill="none" stroke="#d7a46d" stroke-width="3"/>
+<path d="M196 186l3 3m11-10 2 4m11-7 0 4m12-1-1 4m12 2-2 3" fill="none" stroke="#eac58b" stroke-width="1.5"/>
+<path d="M181 212l-6 8 10 7 7-9m64-12 17 7-3 9-12-2" fill="#996046"/>
+<!-- Muted teal lenses sit inside warm golden goggle rims. -->
+<path d="M187 200l67-10" fill="none" stroke-width="8"/>
+<g transform="rotate(-15 222 197)">
+<ellipse cx="198" cy="197" rx="14" ry="17" fill="url(#glass)" stroke="#e8b774" stroke-width="4.5"/>
+<ellipse cx="234" cy="194" rx="18" ry="20" fill="url(#glass)" stroke="#e8b774" stroke-width="4.5"/>
+<path d="M212 195l5-1" fill="none" stroke="#e8b774" stroke-width="4"/>
+<path d="M192 196q2-8 8-10m25 5q3-9 11-11" fill="none" stroke="#fff0e9" stroke-width="3"/>
+</g>
+<!-- A focused, happy face; eyes use the common plum ink. -->
+<ellipse cx="199" cy="237" rx="9" ry="13" transform="rotate(-12 199 237)" fill="#703544" stroke="none"/>
+<ellipse cx="237" cy="230" rx="13" ry="16" transform="rotate(-12 237 230)" fill="#703544" stroke="none"/>
+<ellipse cx="197" cy="232" rx="3.5" ry="4.5" fill="#fff5ef" stroke="none"/>
+<ellipse cx="233" cy="224" rx="4.5" ry="5.5" fill="#fff5ef" stroke="none"/>
+<path d="M205 251q12 4 25-5q-3 19-15 15-7-2-10-10Z" fill="#703544" stroke-width="2"/>
+<path d="M215 256q6-3 10-1-4 8-10 1Z" fill="#ee816d" stroke="none"/>
+<path d="M188 224q7-4 14 0m26-9 16-5" fill="none" stroke-width="2.3"/>
+<path d="M211 242l3 1" fill="none" stroke-width="2"/>
+<path d="M192 251l7 1m45-6 7-2" fill="none" stroke="#eb9777" stroke-width="4"/>
+<!-- Both hands have a purpose: the front arm holds tight as the bug leans into flight. -->
+<path d="M239 273l-14 14-14 4" fill="none" stroke-width="4.5"/>
+<path d="M207 288q-7-2-8 2l2 6 10 0 2-5Z" fill="#ae7655" stroke-width="2.5"/>
+<!-- A soft neck wrap overlaps the common origin of the two tails. -->
+<path d="M250 256Q262 253 273 258L273 270Q258 276 246 267Z" fill="#d76570"/>
+<path d="M251 264Q258 268 265 265" fill="none" stroke="#efaaa0" stroke-width="3"/>
+<path d="M269 257Q277 254 281 261L278 271Q270 275 266 268Z" fill="#c45a68" stroke-width="2.5"/>
+<path d="M272 261L275 267" fill="none" stroke="#efaaa0" stroke-width="2"/>
+</g>
+</g>
+<!-- The root-shell prompt connects the mascot to the project tooling. -->
+<text x="320" y="589" text-anchor="middle" font-family="DejaVu Sans Mono, Consolas, monospace" font-size="53" font-weight="700" letter-spacing="-2" fill="#703544" stroke="#fff2ed" stroke-width="7" stroke-linejoin="round" paint-order="stroke fill"># JITterbug</text>
+</svg>

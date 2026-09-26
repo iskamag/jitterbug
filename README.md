@@ -1,4 +1,4 @@
-# mrx-al09-root
+# JITterbug
 
 Root and debloat tooling for the Huawei MatePad Pro MRX-AL09 (Kirin 990,
 EMUI 11.0.0.205, Android 10, kernel 4.14.116, Mali bifrost r18p0).
@@ -9,6 +9,8 @@ alive for the rest of the boot. The chain is re-run after every reboot;
 nothing here persists.
 
 These are working exploits. Run them on hardware you own.
+
+![JITterbug](assets/logo.svg)
 
 ## Tree
 
