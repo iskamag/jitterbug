@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="571" height="498" viewBox="72 89 571 498" role="img" aria-labelledby="title desc">
 <title id="title">JITterbug</title>
 <desc id="desc">A cheerful aviator bug rides a rounded raspberry rocket with sage-green leaf fins trailing a broad horizontal plume of peach and coral fire, above a monospace # JITterbug wordmark.</desc>
 <defs>
@@ -130,5 +130,5 @@
 </g>
 </g>
 <!-- The root-shell prompt connects the mascot to the project tooling. -->
-<text x="320" y="589" text-anchor="middle" font-family="DejaVu Sans Mono, Consolas, monospace" font-size="53" font-weight="700" letter-spacing="-2" fill="#703544" stroke="#fff2ed" stroke-width="7" stroke-linejoin="round" paint-order="stroke fill"># JITterbug</text>
+<text x="320" y="554" text-anchor="middle" font-family="DejaVu Sans Mono, Consolas, monospace" font-size="53" font-weight="700" letter-spacing="-2" fill="#703544" stroke="#fff2ed" stroke-width="7" stroke-linejoin="round" paint-order="stroke fill"># JITterbug</text>
 </svg>
