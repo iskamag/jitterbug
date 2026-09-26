@@ -9,6 +9,9 @@ alive for the rest of the boot.
 
 <img src="assets/logo.svg" alt="JITterbug" width="320">
 
+Obvious disclaimer: This is made for a very specific, extremely outdated Linux/EMUI version, using long-patched exploits.
+The program hardcodes specific memory offsets, so good luck reproducing this on any other device or firmware.
+
 ## Tree
 
 | Path | |
