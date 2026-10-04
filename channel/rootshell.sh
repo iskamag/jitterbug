@@ -77,9 +77,20 @@ KEEP=$(printf '%s\n' $LOOPS | head -1)
 EXTRAS=$(printf '%s\n' $LOOPS | grep -v "^$KEEP\$" | tr '\n' ' ')
 [ -n "${EXTRAS// /}" ] && "$X/channel.sh" "kill -9 $EXTRAS" >/dev/null 2>&1
 
-# put the library back as soon as the channel exists
+# put the library back as soon as the channel exists, then prove it.  A
+# lingering `b 0x10418` at 0xe6f4 keeps spawning an r.sh on every
+# GetBoolProperty call (1265 accumulated over 16 days once); a restore that
+# silently fails is the difference between one loop and a device-wide storm.
 $A shell "$D/pcwrite2 $LIB 0xe6f4  $D/lb_T_orig.bin" >/dev/null 2>&1
 $A shell "$D/pcwrite2 $LIB 0x10418 $D/lb_H_orig.bin" >/dev/null 2>&1
-say "channel pid $KEEP up (uid 0, u:r:installd:s0); libbase restored"
+hex() { od -An -tx1 "$1" 2>/dev/null | tr -d ' \n'; }
+orig_T=$(hex /tmp/rs_T.bin);  orig_H=$(hex /tmp/rs_H.bin)
+now_T=$($A shell "dd if=$LIB bs=1 skip=\$((0xe6f4)) count=4 2>/dev/null | od -An -tx1" | tr -d ' \r\n')
+now_H=$($A shell "dd if=$LIB bs=1 skip=\$((0x10418)) count=1024 2>/dev/null | od -An -tx1" | tr -d ' \r\n')
+if [ "$now_T" != "$orig_T" ] || [ "$now_H" != "$orig_H" ]; then
+  say "FATAL: libbase restore did not take (T=$now_T want $orig_T); hook may still be live"
+  exit 1
+fi
+say "channel pid $KEEP up (uid 0, u:r:installd:s0); libbase restored and verified"
 [ "$#" -gt 0 ] && exec "$REPO/channel/rootcmd.sh" "$*"
 exec "$REPO/channel/rootcmd.sh"
